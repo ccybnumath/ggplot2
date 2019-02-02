@@ -1,0 +1,331 @@
+---
+title: "Data visualisation"
+output: html_notebook
+---
+## Data visualisation
+### Introduction
+* Example
+```{r}
+library(tidyverse)
+head(mpg)
+ggplot(data=mpg)+
+  geom_point(mapping = aes(x=displ,y=hwy))
+```
+The plot shows a negative relationship between engine size (displ) and fuel efficiency (hwy). 
+```{r}
+ggplot(data=mpg)
+ggplot(data=mpg)+
+  geom_point(mapping = aes(x=class,y=drv))
+```
+### A graphing template
+```
+ggplot(data = <DATA>) + 
+  <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
+```
+### Aesthetic mappings
+```{r}
+ggplot(data = mpg)+
+  geom_point(mapping = aes(x=displ,y=hwy,color=class))
+
+ggplot(data = mpg)+
+  geom_point(mapping = aes(x=displ,y=hwy,shape=class))
+
+ggplot(data = mpg)+
+  geom_point(mapping = aes(x=displ,y=hwy,size=class))
+
+ggplot(data = mpg)+
+  geom_point(mapping = aes(x=displ,y=hwy,alpha=class))
+
+ggplot(data = mpg)+
+  geom_point(mapping = aes(x=displ,y=hwy),color="blue")
+```
+
+What happened to the SUVs? ggplot2 will only use six shapes at a time. By default, additional groups will go unplotted when you use the shape aesthetic.
+
+* The name of a color as a character string.
+* The size of a point in mm.
+* The shape of a point as a number, as shown in [Figure](https://r4ds.had.co.nz/data-visualisation.html#fig:shapes).
+
+```{r}
+ggplot(data = mpg)+
+  geom_point(mapping = aes(x=displ,y=hwy,color=displ))
+
+# ggplot(data = mpg)+
+#  geom_point(mapping = aes(x=displ,y=hwy,shape=displ))
+# Error: A continuous variable can not be mapped to shape
+
+ggplot(data = mpg)+
+  geom_point(mapping = aes(x=displ,y=hwy,size=displ))
+
+ggplot(data = mpg)+
+  geom_point(mapping = aes(x=displ,y=hwy,color=displ<5))
+```
+### Common problems
+One common problem when creating ggplot2 graphics is to put the + in the wrong place: it has to come at the end of the line, not the start. In other words, make sure you haven’t accidentally written code like this:
+```
+ggplot(data = mpg) 
++ geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+### Facet
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ class, nrow = 2)
+```
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(drv ~ class)
+```
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(. ~ class)
+```
+If you prefer to not facet in the rows or columns dimension, use a . instead of a variable name, e.g. + facet_grid(. ~ cyl).
+### Exercise
+1. 
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(.~displ)
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~displ)
+```
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = drv, y = cyl))+
+  facet_grid(drv~cyl)
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ .)
+```
+
+### Geometric objects
+```{r}
+ggplot(data = mpg)+
+  aes(x = displ, y = hwy)+
+  geom_point()
+
+ggplot(data = mpg)+
+  aes(x = displ, y = hwy)+
+  geom_smooth()
+
+ggplot(data = mpg)+
+  aes(x = displ, y = hwy,linetype=drv)+
+  geom_smooth()
+
+```
+
+```{r}
+ggplot(data=mpg)+
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+
+ggplot(data=mpg)+
+  geom_smooth(mapping = aes(x = displ, y = hwy,group=drv))
+
+ggplot(data=mpg)+
+  geom_smooth(mapping = aes(x = displ, y = hwy,color=drv),
+              show.legend = F)
+```
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth()
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color=class)) + 
+  geom_smooth()
+```
+
+The local data argument in geom_smooth() overrides the global data argument in ggplot() for that layer only.
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color=class)) + 
+  geom_smooth(data=filter(mpg,class=="subcompact"),se=F)
+```
+
+#### Exercises
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE)
+```
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE)
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth(mapping = aes(group=drv),se = FALSE)
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy,color=drv)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE)
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color=drv)) + 
+  geom_smooth(se = FALSE)
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color=drv)) + 
+  geom_smooth(mapping = aes(linetype=drv),se = FALSE)
+
+```
+### Statistical transformations
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut))
+```
+Many graphs, like scatterplots, plot the raw values of your dataset. Other graphs, like bar charts, calculate new values to plot:
+
+```{r}
+demo <- tribble(
+  ~cut,         ~freq,
+  "Fair",       1610,
+  "Good",       4906,
+  "Very Good",  12082,
+  "Premium",    13791,
+  "Ideal",      21551
+)
+
+ggplot(data = demo) +
+  geom_bar(mapping = aes(x = cut, y = freq), stat = "identity")
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = ..prop.., group = 1))
+```
+
+```{r}
+ggplot(data = diamonds) + 
+  stat_summary(
+    mapping = aes(x = cut, y = depth),
+    fun.ymin = min,
+    fun.ymax = max,
+    fun.y = median
+  )
+```
+
+#### Exercises
+1. What is the default geom associated with stat_summary()? How could you rewrite the previous plot to use that geom function instead of the stat function?
+
+2. 
+```
+ggplot(data = diamonds) + 
+  geom_col(mapping = aes(x=cut))
+```
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = ..prop..,group=1))
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = color, y = ..prop..,group=1))
+```
+
+### Position adjustments
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity))
+```
+```{r}
+ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) + 
+  geom_bar(alpha = 1/5, position = "identity")
+ggplot(data = diamonds, mapping = aes(x = cut, colour = clarity)) + 
+  geom_bar(fill = NA, position = "identity")
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "fill")
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "dodge")
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), position = "jitter")
+```
+
+#### Exercises
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty)) + 
+  geom_bar()
+```
+### Coordinate systems
+```{r}
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) + 
+  geom_boxplot()
+
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) + 
+  geom_boxplot()+
+  coord_flip()
+```
+
+```{r}
+nz <- map_data("nz")
+ggplot(nz, aes(long, lat, group = group)) +
+  geom_polygon(fill = "white", colour = "blue")
+
+ggplot(nz, aes(long, lat, group = group)) +
+  geom_polygon(fill = "white", colour = "black") +
+  coord_quickmap()
+```
+
+```{r}
+bar <- ggplot(data = diamonds) + 
+  geom_bar(
+    mapping = aes(x = cut, fill = cut), 
+    show.legend = FALSE,
+    width = 1
+  ) + 
+  theme(aspect.ratio = 1) +
+  labs(x = NULL, y = NULL)
+bar
+bar + coord_flip()
+bar + coord_polar()
+```
+#### Exercises
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity))+
+  labs(x=NULL,y=NULL)+
+  theme(aspect.ratio = 1) +
+  coord_polar()
+```
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+  geom_point() + 
+  geom_abline()+
+  coord_fixed()
+```
+fixed the scale.
+### The layered grammar of graphics
+```
+ggplot(data = <DATA>) + 
+  <GEOM_FUNCTION>(
+     mapping = aes(<MAPPINGS>),
+     stat = <STAT>, 
+     position = <POSITION>
+  ) +
+  <COORDINATE_FUNCTION> +
+  <FACET_FUNCTION>
+```
+### References
+1. [Data visualisation](https://r4ds.had.co.nz/data-visualisation.htm)
+
+
+
+
+

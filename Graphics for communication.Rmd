@@ -1,0 +1,144 @@
+---
+title: "Graphics for communication"
+output: html_notebook
+---
+## Scales
+```{r}
+library(tidyverse)
+ggplot(mpg,aes(displ, hwy))+
+  geom_point(aes(colour=class))
+
+library(tidyverse)
+ggplot(mpg,aes(displ, hwy))+
+  geom_point(aes(colour=class))+
+  scale_y_continuous(breaks = seq(15,50,by=5))
+
+library(tidyverse)
+ggplot(mpg,aes(displ, hwy))+
+  geom_point(aes(colour=class))+
+  scale_x_continuous(labels = NULL)+
+  scale_y_continuous(labels = NULL)
+```
+Collectively axes and legends are called guides. Axes are used for x and y aesthetics; legends are used for everything else.
+
+```{r}
+presidential %>%
+  mutate(id = 33 + row_number()) %>%
+  ggplot(aes(start, id)) +
+    geom_point() +
+    geom_segment(aes(xend = end, yend = id)) +
+    scale_x_date(NULL, breaks = presidential$start, date_labels = "'%y")
+```
+
+```{r}
+base <- ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class))
+
+base + theme(legend.position = "left")
+base + theme(legend.position = "top")
+base + theme(legend.position = "bottom")
+base + theme(legend.position = "right") # the default
+```
+
+```{r}
+ggplot(mpg,aes(displ,hwy))+
+  geom_point(aes(color=class))+
+  geom_smooth(se=F)+
+  theme(legend.position = "bottom")+
+  guides(color=guide_legend(nrow=1,override.aes = list(size = 4)))
+```
+
+```{r}
+ggplot(diamonds, aes(log10(carat), log10(price))) +
+  geom_point()
+
+ggplot(diamonds, aes(log10(carat), log10(price))) +
+  geom_bin2d()
+```
+
+```{r}
+ggplot(diamonds, aes(carat, price)) +
+  geom_bin2d() + 
+  scale_x_log10()+
+  scale_y_log10()
+```
+
+* Color
+```{r}
+ggplot(mpg,aes(displ,hwy))+
+  geom_point(aes(color=drv))
+
+ggplot(mpg,aes(displ,hwy))+
+  geom_point(aes(color=drv))+
+  scale_color_brewer(palette = "Set1")
+
+ggplot(mpg,aes(displ,hwy))+
+  geom_point(aes(color=drv))+
+  scale_color_brewer(palette = "Set2")
+
+ggplot(mpg,aes(displ,hwy))+
+  geom_point(aes(color=drv,shape=drv))+
+  scale_color_brewer(palette = "Set2")
+```
+
+```{r}
+presidential%>%
+  mutate(id=33+row_number())%>%
+  ggplot(aes(start,id,color=party))+
+  geom_point()+
+  geom_segment(aes(xend=end,yend=id))+
+  scale_color_manual(values = c(Republican = "red", Democratic = "blue"))
+```
+
+```{r}
+df <- tibble(
+  x=rnorm(10000),
+  y=rnorm(10000)
+)
+
+ggplot(df,aes(x,y))+
+  geom_hex()+
+  coord_fixed()
+
+ggplot(df, aes(x, y)) +
+  geom_hex() +
+  viridis::scale_fill_viridis() +
+  coord_fixed()
+
+ggplot(df, aes(x, y)) +
+  geom_hex() +
+  scale_color_gradient(low = "white",high = "red")+
+  coord_fixed()
+```
+
+### Exercises
+1. Why doesn’t the following code override the default scale?
+```{r}
+df <- tibble(
+  x=rnorm(10000),
+  y=rnorm(10000)
+)
+
+ggplot(df, aes(x, y)) +
+  geom_point(aes(color=x))+
+  scale_colour_gradient(low = "white", high = "red") +
+  coord_fixed()
+
+ggplot(df, aes(x, y)) +
+  geom_hex()+
+  scale_colour_gradient(low = "white", high = "red") +
+  coord_fixed()
+
+```
+
+Note that all colour scales come in two variety: scale_colour_x() and scale_fill_x() for the colour and fill aesthetics respectively (the colour scales are available in both UK and US spellings).
+
+4. Use override.aes to make the legend on the following plot easier to see.
+ggplot(diamonds, aes(carat, price)) +
+  geom_point(aes(colour = cut), alpha = 1/20)
+```{r}
+ggplot(diamonds, aes(carat, price)) +
+  geom_point(aes(colour = cut), alpha = 1/20)+
+  guides(colour = guide_legend( override.aes = list(size = 4,alpha=1)))
+```
+### Zomming
